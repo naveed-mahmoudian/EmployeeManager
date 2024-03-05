@@ -28,6 +28,7 @@ else
     {
         string json = File.ReadAllText(fileName);
         employees = JsonSerializer.Deserialize<Employee[]>(json);
+        Console.WriteLine("...Complete");
     }
     catch (Exception ex)
     {
@@ -36,9 +37,8 @@ else
         appRunning = false;
     }
 }
-Console.WriteLine("...Complete");
 
-do
+while (appRunning)
 {
     Console.WriteLine("-------------------------------------------------");
     Console.WriteLine("--- Welcome to the Employee Management System ---");
@@ -68,6 +68,19 @@ do
                         if (reader.ReadLine() == null)
                         {
                             Console.WriteLine("No Employees...");
+                        }
+                        else
+                        {
+                            foreach (Employee e in employees)
+                            {
+                                Console.WriteLine($"ID: {e.ID}");
+                                Console.WriteLine($"First Name: {e.FirstName}");
+                                Console.WriteLine($"Last Name: {e.LastName}");
+                                Console.WriteLine($"Email: {e.Email}");
+                                Console.WriteLine($"Department: {e.Department}");
+                                Console.WriteLine($"Title: {e.Title}");
+                                Console.WriteLine($"Salary: ${e.Salary}");
+                            }
                         }
                     }
                     Console.ReadLine();
@@ -153,4 +166,4 @@ do
             }
         }
     }
-} while (appRunning);
+}
