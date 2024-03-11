@@ -6,6 +6,9 @@
 # employee json file
 employeeData.json
 
+# vscode config
+.vscode
+
 # dotenv files
 .env
 

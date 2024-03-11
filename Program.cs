@@ -1,44 +1,19 @@
 ﻿using System.Text.Json;
 using EmployeeManager;
 
-bool appRunning = true;
-string fileName = "employeeData.json";
-Employee[]? employees = [];
+const string fileName = "employeeData.json";
 
-Console.WriteLine("...Loading");
 if (!File.Exists(fileName))
 {
-    try
-    {
-        using (FileStream fs = File.Create(fileName))
-        {
-            Console.WriteLine("...Complete");
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error: {ex.Message}");
-        Console.ReadLine();
-        appRunning = false;
-    }
-}
-else
-{
-    try
-    {
-        string json = File.ReadAllText(fileName);
-        employees = JsonSerializer.Deserialize<Employee[]>(json);
-        Console.WriteLine("...Complete");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error: {ex.Message}");
-        Console.ReadLine();
-        appRunning = false;
-    }
+    FileStream fs = File.Create(fileName);
+    fs.Close();
 }
 
-while (appRunning)
+List<Employee> importedEmployees = ImportEmployees();
+bool appRunning = true;
+string? userMenuOption;
+
+do
 {
     Console.WriteLine("-------------------------------------------------");
     Console.WriteLine("--- Welcome to the Employee Management System ---");
@@ -49,121 +24,219 @@ while (appRunning)
     Console.WriteLine("1. View all Employees");
     Console.WriteLine("2. Add an Employee");
     Console.WriteLine("3. Update an Employee");
-    Console.WriteLine("4, Remove an employee");
+    Console.WriteLine("4. Remove an employee");
     Console.WriteLine("5. Exit the application\n");
 
-    string? userOption = Console.ReadLine();
-    bool userChoosingOptions = true;
+    userMenuOption = Console.ReadLine();
 
-    while (userChoosingOptions)
+    switch (userMenuOption)
     {
-        if (userOption != null)
+        case "1":
+            ViewAllEmployees();
+            break;
+        case "2":
+            AddEmployee();
+            break;
+        case "3":
+            UpdateEmployee();
+            break;
+        case "4":
+            DeleteEmployee();
+            break;
+        case "5":
+            ExitApplication();
+            break;
+        default:
+            break;
+    }
+}
+while (appRunning);
+
+List<Employee> ImportEmployees()
+{
+    string employeeJson = File.ReadAllText(fileName);
+    try
+    {
+        return JsonSerializer.Deserialize<List<Employee>>(employeeJson) ?? new List<Employee>();
+    }
+    catch
+    {
+        return new List<Employee>();
+    }
+}
+
+void ViewAllEmployees()
+{
+    Console.WriteLine("View All Employees\n");
+
+    StreamReader sr = new StreamReader(fileName);
+    if (sr.ReadLine() == null)
+    {
+        Console.WriteLine("No Employees...");
+    }
+    else
+    {
+        foreach (Employee employee in importedEmployees)
         {
-            switch (userOption)
-            {
-                case "1":
-                    Console.WriteLine("View all employees\n");
-                    using (StreamReader reader = new StreamReader(fileName))
-                    {
-                        if (reader.ReadLine() == null)
-                        {
-                            Console.WriteLine("No Employees...");
-                        }
-                        else
-                        {
-                            foreach (Employee e in employees)
-                            {
-                                Console.WriteLine($"ID: {e.ID}");
-                                Console.WriteLine($"First Name: {e.FirstName}");
-                                Console.WriteLine($"Last Name: {e.LastName}");
-                                Console.WriteLine($"Email: {e.Email}");
-                                Console.WriteLine($"Department: {e.Department}");
-                                Console.WriteLine($"Title: {e.Title}");
-                                Console.WriteLine($"Salary: ${e.Salary}");
-                            }
-                        }
-                    }
-                    Console.ReadLine();
-                    userChoosingOptions = false;
-                    break;
-
-                case "2":
-                    bool addAnEmployee = true;
-                    do
-                    {
-                        Console.WriteLine("Add an employee\n");
-
-                        int numberOfEmployees;
-                        if (employees != null)
-                        {
-                            numberOfEmployees = employees.Length;
-                        }
-                        else
-                        {
-                            numberOfEmployees = 0;
-                        }
-
-                        int employeeID = numberOfEmployees + 1;
-
-                        Console.WriteLine("First Name:");
-                        string? employeeFirstName = Console.ReadLine();
-                        Console.WriteLine("Last Name:");
-                        string? employeeLastName = Console.ReadLine();
-                        Console.WriteLine("Email:");
-                        string? employeeEmail = Console.ReadLine();
-                        Console.WriteLine("Department:");
-                        string? employeeDepartment = Console.ReadLine();
-                        Console.WriteLine("Title:");
-                        string? employeeTitle = Console.ReadLine();
-                        Console.WriteLine("Salary");
-                        string? employeeSalaryString = Console.ReadLine();
-                        int employeeSalary = int.Parse(employeeSalaryString);
-
-                        Employee employee = new Employee(
-                            id: employeeID,
-                            firstName: employeeFirstName,
-                            lastName: employeeLastName,
-                            email: employeeEmail,
-                            department: employeeDepartment,
-                            title: employeeTitle,
-                            salary: employeeSalary
-                        );
-
-                        string json = JsonSerializer.Serialize(employee, new JsonSerializerOptions { WriteIndented = true });
-                        File.WriteAllText(fileName, json);
-                        Console.WriteLine("Employee added!");
-                        Console.WriteLine("Add another y/n?");
-                        string? userAddAnotherEmployee = Console.ReadLine();
-                        if (userAddAnotherEmployee != null)
-                        {
-                            string userChoice = userAddAnotherEmployee.ToLower().Trim();
-                            if (userChoice == "y")
-                            {
-                                break;
-                            }
-                            else if (userChoice == "n")
-                            {
-                                addAnEmployee = false;
-                            }
-                        }
-                    }
-                    while (addAnEmployee);
-                    break;
-
-
-                case "3":
-                    Console.WriteLine("Under Construction");
-                    break;
-
-                case "4":
-                    Console.WriteLine("Under construction");
-                    break;
-
-                case "5":
-                    userChoosingOptions = false;
-                    appRunning = false;
-                    break;
-            }
+            Console.WriteLine($"ID: {employee.ID}");
+            Console.WriteLine($"First Name: {employee.FirstName}");
+            Console.WriteLine($"Last Name: {employee.LastName}");
+            Console.WriteLine($"Email: {employee.Email}");
+            Console.WriteLine($"Department: {employee.Department}");
+            Console.WriteLine($"Title: {employee.Title}");
+            Console.WriteLine($"Salary: {employee.Salary:C2}");
+            Console.WriteLine();
         }
     }
+    Console.ReadLine();
+}
+
+void AddEmployee()
+{
+    bool addAnEmployee = true;
+    string? userAddEmployee;
+
+    do
+    {
+        int id;
+        if (importedEmployees.Count > 0)
+        {
+            id = importedEmployees.Count + 1;
+        }
+        else
+        {
+            id = 1;
+        }
+        string firstName = "";
+        string lastName = "";
+        string email = "";
+        string department = "";
+        string title = "";
+        int salary;
+        bool validFirstName = false;
+        bool validLastName = false;
+        bool validEmail = false;
+        bool validDepartment = false;
+        bool validTitle = false;
+        bool validSalary = false;
+
+        Console.WriteLine("Add an Employee:\n");
+
+        do
+        {
+            Console.WriteLine("First Name:");
+            string? userFirstName = Console.ReadLine();
+            if (userFirstName != null && userFirstName.Length >= 2)
+            {
+                firstName = userFirstName;
+                validFirstName = true;
+            }
+            else
+            {
+                Console.WriteLine("Please enter a valid first name");
+            }
+        } while (validFirstName == false);
+
+        do
+        {
+            Console.WriteLine("Last Name:");
+            string? userLastName = Console.ReadLine();
+            if (userLastName != null && userLastName.Length >= 2)
+            {
+                lastName = userLastName;
+                validLastName = true;
+            }
+            else
+            {
+                Console.WriteLine("Please enter a valid last name");
+            }
+        } while (validLastName == false);
+
+        do
+        {
+            Console.WriteLine("Email:");
+            string? userEmail = Console.ReadLine();
+            if (userEmail != null && userEmail.Length >= 6 && userEmail.Contains('@'))
+            {
+                email = userEmail;
+                validEmail = true;
+            }
+            else
+            {
+                Console.WriteLine("Please enter a valid email");
+            }
+        }
+        while (validEmail == false);
+
+        do
+        {
+            Console.WriteLine("Department:");
+            string? userDepartment = Console.ReadLine();
+            if (userDepartment != null && userDepartment.Length >= 2)
+            {
+                department = userDepartment;
+                validDepartment = true;
+            }
+            else
+            {
+                Console.WriteLine("Please enter a valid department");
+            }
+        }
+        while (validDepartment == false);
+
+        do
+        {
+            Console.WriteLine("Title:");
+            string? userTitle = Console.ReadLine();
+            if (userTitle != null && userTitle.Length >= 2)
+            {
+                title = userTitle;
+                validTitle = true;
+            }
+            else
+            {
+                Console.WriteLine("Please enter a valid title");
+            }
+        }
+        while (validTitle == false);
+
+        do
+        {
+            Console.WriteLine("Salary (numbers only):");
+            string? salaryString = Console.ReadLine();
+            if (int.TryParse(salaryString, out salary))
+            {
+                validSalary = true;
+            }
+            else
+            {
+                Console.WriteLine("Please enter a valid salary");
+            }
+        }
+        while (validSalary == false);
+
+        Employee employee = new Employee(id, firstName, lastName, email, department, title, salary);
+
+        importedEmployees.Add(employee);
+        string employeeJson = JsonSerializer.Serialize(importedEmployees);
+        File.WriteAllText(fileName, employeeJson);
+        Console.WriteLine("\nEmployee Added!");
+        Console.WriteLine("Would you like to add another employee? (y/n)");
+        userAddEmployee = Console.ReadLine();
+
+        if (userAddEmployee == null || userAddEmployee.ToLower().Trim() != "y")
+        {
+            addAnEmployee = false;
+        }
+    }
+    while (addAnEmployee);
+}
+
+void UpdateEmployee() { }
+
+void DeleteEmployee() { }
+
+void ExitApplication()
+{
+    appRunning = false;
 }
