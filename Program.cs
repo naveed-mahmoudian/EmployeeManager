@@ -232,9 +232,125 @@ void AddEmployee()
     while (addAnEmployee);
 }
 
-void UpdateEmployee() { }
+void UpdateEmployee()
+{
+    string? userEmployeeId;
+    int employeeId = -1;
+    bool validEmployeeId = false;
 
-void DeleteEmployee() { }
+    Console.WriteLine("Update an Employee\n");
+
+    do
+    {
+        Console.Write("Enter Employee ID: ");
+        userEmployeeId = Console.ReadLine();
+
+        if (userEmployeeId == null || !int.TryParse(userEmployeeId, out employeeId) || employeeId < 0)
+        {
+            Console.WriteLine("Invalid Employee ID\n");
+        }
+        else
+        {
+            Employee? employeeToEdit = importedEmployees.FirstOrDefault(e => e.ID == employeeId);
+            if (employeeToEdit != null)
+            {
+                Console.WriteLine("Edit First Name? (y/n)");
+                Console.WriteLine($"CURRENT: {employeeToEdit.FirstName}");
+                string? editFirstName = Console.ReadLine();
+                if (editFirstName != null && editFirstName.ToLower().Trim() == "y")
+                {
+                    Console.WriteLine("Enter new First Name:");
+                    string? newFirstName = Console.ReadLine();
+                    if (newFirstName != null)
+                    {
+                        employeeToEdit.FirstName = newFirstName;
+                    }
+                }
+
+                Console.WriteLine("Edit Last Name? (y/n)");
+                Console.WriteLine($"CURRENT: {employeeToEdit.LastName}");
+                string? editLastName = Console.ReadLine();
+                if (editLastName != null && editLastName.ToLower().Trim() == "y")
+                {
+                    Console.WriteLine("Enter new Last Name:");
+                    string? newLastName = Console.ReadLine();
+                    if (newLastName != null)
+                    {
+                        employeeToEdit.LastName = newLastName;
+                    }
+                }
+
+                Console.WriteLine("Edit Email? (y/n)");
+                Console.WriteLine($"CURRENT: {employeeToEdit.Email}");
+                string? editEmail = Console.ReadLine();
+                if (editEmail != null && editEmail.ToLower().Trim() == "y")
+                {
+                    Console.WriteLine("Enter new Email:");
+                    string? newEmail = Console.ReadLine();
+                    if (newEmail != null)
+                    {
+                        employeeToEdit.Email = newEmail;
+                    }
+                }
+
+                Console.WriteLine("Edit Department? (y/n)");
+                Console.WriteLine($"CURRENT: {employeeToEdit.Department}");
+                string? editDepartment = Console.ReadLine();
+                if (editDepartment != null && editDepartment.ToLower().Trim() == "y")
+                {
+                    Console.WriteLine("Enter new Department:");
+                    string? newDepartment = Console.ReadLine();
+                    if (newDepartment != null)
+                    {
+                        employeeToEdit.Department = newDepartment;
+                    }
+                }
+
+                Console.WriteLine("Edit Title? (y/n)");
+                Console.WriteLine($"CURRENT: {employeeToEdit.Title}");
+                string? editTitle = Console.ReadLine();
+                if (editTitle != null && editTitle.ToLower().Trim() == "y")
+                {
+                    Console.WriteLine("Enter new Title:");
+                    string? newTitle = Console.ReadLine();
+                    if (newTitle != null)
+                    {
+                        employeeToEdit.Title = newTitle;
+                    }
+                }
+
+                Console.WriteLine("Edit Salary? (y/n)");
+                Console.WriteLine($"CURRENT: {employeeToEdit.Salary:C2}");
+                string? editSalary = Console.ReadLine();
+                if (editSalary != null && editSalary.ToLower().Trim() == "y")
+                {
+                    Console.WriteLine("Enter new Salary:");
+                    string? newUserSalary = Console.ReadLine();
+                    if (newUserSalary != null && int.TryParse(editSalary, out int newSalary))
+                    {
+                        employeeToEdit.Salary = newSalary;
+                    }
+                }
+
+                string employeeJson = JsonSerializer.Serialize(importedEmployees);
+                File.WriteAllText(fileName, employeeJson);
+                Console.WriteLine("Employee Updated!");
+                validEmployeeId = true;
+            }
+            else
+            {
+                Console.WriteLine("Employee not found");
+            }
+        }
+
+    }
+    while (validEmployeeId == false);
+
+}
+
+void DeleteEmployee()
+{
+}
 
 void ExitApplication()
 {
