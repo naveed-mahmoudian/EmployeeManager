@@ -350,6 +350,40 @@ void UpdateEmployee()
 
 void DeleteEmployee()
 {
+    string? userEmployeeId;
+    int employeeId = -1;
+    bool validEmployeeId = false;
+
+    Console.WriteLine("Delete an Employee\n");
+
+    do
+    {
+        Console.WriteLine("WARNING: This cannot be undone!");
+        Console.Write("Enter Employee ID: ");
+        userEmployeeId = Console.ReadLine();
+
+        if (userEmployeeId == null || !int.TryParse(userEmployeeId, out employeeId) || employeeId < 0)
+        {
+            Console.WriteLine("Invalid Employee ID\n");
+        }
+        else
+        {
+            Employee? employeeToRemove = importedEmployees.SingleOrDefault(e => e.ID == employeeId);
+            if (employeeToRemove != null)
+            {
+                importedEmployees.Remove(employeeToRemove);
+                string employeeJson = JsonSerializer.Serialize(importedEmployees);
+                File.WriteAllText(fileName, employeeJson);
+                Console.WriteLine("Employee Removed!");
+                validEmployeeId = true;
+            }
+            else
+            {
+                Console.WriteLine("Employee not found");
+            }
+        }
+
+    } while (validEmployeeId == false);
 }
 
 void ExitApplication()
